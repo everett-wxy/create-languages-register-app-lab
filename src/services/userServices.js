@@ -15,7 +15,7 @@ const fetchUsers = async () => {
 };
 
 const createUsers = async (newName, newAge, newCountry) => {
-    console.log(`service function-createUsers triggered`)
+  console.log(`service function-createUsers triggered`);
   try {
     const res = await fetch(BASE_URL, {
       method: "PUT",
@@ -39,4 +39,25 @@ const createUsers = async (newName, newAge, newCountry) => {
   }
 };
 
-export { fetchUsers, createUsers };
+const deleteUsers = async (userId) => {
+  console.log("attempting delete");
+  try {
+    const res = await fetch(`${BASE_URL}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json", // Added Content-Type header
+      },
+      body: JSON.stringify({ user_id: userId }),
+    });
+    if (!res.ok) {
+      throw new Error(`Failed to delete user with ID: ${userId}`);
+    }
+    console.log(`User with ID ${userId} deleted successfully`);
+    return true;
+  } catch (error) {
+    console.log("Error deleting users:", error.message);
+    return false;
+  }
+};
+
+export { fetchUsers, createUsers, deleteUsers };
