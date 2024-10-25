@@ -58,7 +58,7 @@ const Languages = () => {
 
   return (
     <div>
-      <h2>Language Data</h2>
+      <h1>Language Data</h1>
       <form onSubmit={handleSubmit}>
         <label htmlFor="newLanguage">New language:</label>
         <input

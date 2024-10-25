@@ -60,4 +60,29 @@ const deleteUsers = async (userId) => {
   }
 };
 
-export { fetchUsers, createUsers, deleteUsers };
+const updateUser = async (userId, updatedFields) => {
+    try {
+        const res = await fetch (`${BASE_URL}`, {
+            method: "PATCH",
+            headers: {
+                "Content-Type" : "application/json",
+            },
+            body: JSON.stringify({
+                user_id: userId,
+                ...updatedFields,
+            }),
+        });
+        if (!res.ok) {
+            throw new Errror (`Failed to update user with ID: ${userId}`);
+        }
+        const data = await res.json();
+        return data;
+    } catch (error){
+        console.error('error updating users:,', error.message);
+        throw error;
+    }
+};
+
+
+
+export { fetchUsers, createUsers, deleteUsers, updateUser };

@@ -8,9 +8,45 @@ const Users = () => {
   const [newAge, setNewAge] = useState("");
   const [newCountry, setNewCountry] = useState("");
 
+  const [userIdToUpdate, setUserIdToUpdate] = useState("");
+  const [updatedName, setUpdatedName] = useState("");
+  const [updatedAge, setUpdatedAge] = useState("");
+  const [updatedCountry, setUpdatedCountry] = useState("");
+
+  const handleUpdateNameInput = (e) => {
+    setUpdatedName(e.target.value);
+  };
+
+  const handleUpdateAgeInput = (e) => {
+    setUpdatedAge(e.target.value);
+  };
+
+  const handleUpdateCountryInput = (e) => {
+    setUpdatedCountry(e.target.value);
+  };
+
+  const updateUser = async () => {
+    try {
+      const updatedFields = {};
+      if (updatedName) updatedFields.name = updatedName;
+      if (updatedAge) updatedFields.age = updatedAge;
+      if (updatedCountry) updatedFields.country = updatedCountry;
+
+      const response = await userServices.updateUser(
+        userIdToUpdate,
+        updatedFields
+      );
+      console.log("User updated:", response);
+      fetchUsers(); // Refresh user list after update
+    } catch (error) {
+      console.error("Error updating user:", error.message);
+    }
+  };
+
   const fetchUsers = async () => {
     const data = await userServices.fetchUsers();
     setUsers(data);
+    console.log(data);
   };
 
   const sendNewUser = async (newName, newAge, newCountry) => {
@@ -28,10 +64,10 @@ const Users = () => {
     try {
       const data = await userServices.deleteUsers(id);
     } catch (error) {
-      console.error('error deleting user:',  error.message);
+      console.error("error deleting user:", error.message);
     }
     fetchUsers();
-  }
+  };
 
   const handleNameInput = (e) => {
     setNewName(e.target.value);
@@ -52,13 +88,15 @@ const Users = () => {
 
   const userList = users.map((user) => {
     return (
-      <li>
+      <li key={user.id}>
         <ul>
-          <li>{user.id}</li>
-          <li>{user.name}</li>
-          <li>{user.age}</li>
-          <li>{user.country}</li>
-          <li><button onClick={()=>deleteUser(user.id)}>Delete</button></li>
+          <li>user: {user.id}</li>
+          <li>name: {user.name}</li>
+          <li>age: {user.age}</li>
+          <li>country: {user.country}</li>
+          <li>
+            <button onClick={() => deleteUser(user.id)}>Delete</button>
+          </li>
         </ul>
       </li>
     );
@@ -100,6 +138,51 @@ const Users = () => {
       <h1>Retrieve Users</h1>
       <button onClick={fetchUsers}>Retrieve Users</button>
       <ul>{userList}</ul>
+      <h1>Update user</h1>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          updateUser();
+          setUpdatedAge('');
+          setUpdatedCountry('');
+          setUpdatedName('');
+          setUserIdToUpdate('');
+        }}
+      >
+        <label htmlFor="updateUserId">User ID: </label>
+        <input
+          id="updateUserId"
+          type="text"
+          value={userIdToUpdate}
+          onChange={(e) => setUserIdToUpdate(e.target.value)}
+        />
+        <br />
+        <label htmlFor="updateName">New Name (optional): </label>
+        <input
+          id="updateName"
+          type="text"
+          value={updatedName}
+          onChange={handleUpdateNameInput}
+        />
+        <br />
+        <label htmlFor="updateAge">New Age (optional): </label>
+        <input
+          id="updateAge"
+          type="number"
+          value={updatedAge}
+          onChange={handleUpdateAgeInput}
+        />
+        <br />
+        <label htmlFor="updateCountry">New Country (optional): </label>
+        <input
+          id="updateCountry"
+          type="text"
+          value={updatedCountry}
+          onChange={handleUpdateCountryInput}
+        />
+        <br />
+        <button type="submit">Update User</button>
+      </form>
     </div>
   );
 };
