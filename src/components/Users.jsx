@@ -2,16 +2,14 @@ import React, { useEffect, useState } from "react";
 import * as userServices from "../services/userServices";
 
 const Users = () => {
+  const [userLanguages, setUserLanguages] = useState([]);
+  const [newLanguage, setNewLanguage] = useState("");
+
   const [users, setUsers] = useState([]);
   // const [newId, setNewId] = useState('');
   const [newName, setNewName] = useState("");
   const [newAge, setNewAge] = useState("");
   const [newCountry, setNewCountry] = useState("");
-
-  const [userIdToUpdate, setUserIdToUpdate] = useState("");
-  const [updatedName, setUpdatedName] = useState("");
-  const [updatedAge, setUpdatedAge] = useState("");
-  const [updatedCountry, setUpdatedCountry] = useState("");
 
   const handleUpdateNameInput = (e) => {
     setUpdatedName(e.target.value);
@@ -25,6 +23,11 @@ const Users = () => {
     setUpdatedCountry(e.target.value);
   };
 
+  const [userIdToUpdate, setUserIdToUpdate] = useState("");
+  const [updatedName, setUpdatedName] = useState("");
+  const [updatedAge, setUpdatedAge] = useState("");
+  const [updatedCountry, setUpdatedCountry] = useState("");
+
   const updateUser = async () => {
     try {
       const updatedFields = {};
@@ -37,6 +40,7 @@ const Users = () => {
         updatedFields
       );
       console.log("User updated:", response);
+      fetchUserLanguages(userIdToUpdate);
       fetchUsers(); // Refresh user list after update
     } catch (error) {
       console.error("Error updating user:", error.message);
@@ -84,6 +88,35 @@ const Users = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     sendNewUser(newName, newAge, newCountry);
+  };
+
+  const fetchUserLanguages = async (userId) => {
+    try {
+      const languages = await userServices.getUserLanguage(userId);
+      setUserLanguages(languages);
+      console.log("User languages fetched:", languages);
+    } catch (error) {
+      console.error("Error fetching user languages:", error.message);
+    }
+  };
+
+  const handleLanguageInput = (e) => {
+    setNewLanguage(e.target.value);
+  };
+
+  const addLanguage = async () => {
+    if (!userIdToUpdate || !newLanguage) return;
+    try {
+      const response = await userServices.addLanguageForUser(
+        userIdToUpdate,
+        newLanguage
+      );
+      console.log("Language added:", response);
+      fetchUserLanguages(userIdToUpdate); // Refresh user languages after adding
+      setNewLanguage(""); // Clear input
+    } catch (error) {
+      console.error("Error adding language:", error.message);
+    }
   };
 
   const userList = users.map((user) => {
@@ -143,10 +176,10 @@ const Users = () => {
         onSubmit={(e) => {
           e.preventDefault();
           updateUser();
-          setUpdatedAge('');
-          setUpdatedCountry('');
-          setUpdatedName('');
-          setUserIdToUpdate('');
+          setUpdatedAge("");
+          setUpdatedCountry("");
+          setUpdatedName("");
+          setUserIdToUpdate("");
         }}
       >
         <label htmlFor="updateUserId">User ID: </label>
@@ -182,6 +215,28 @@ const Users = () => {
         />
         <br />
         <button type="submit">Update User</button>
+      </form>
+      <h1>User Languages</h1>
+      <ul>
+        {userLanguages.map((lang, index) => (
+          <li key={index}>{lang}</li>
+        ))}
+      </ul>
+      <h1>Add Language for User</h1>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          addLanguage();
+        }}
+      >
+        <label htmlFor="language">New Language: </label>
+        <input
+          id="language"
+          type="text"
+          value={newLanguage}
+          onChange={handleLanguageInput}
+        />
+        <button type="submit">Add Language</button>
       </form>
     </div>
   );
